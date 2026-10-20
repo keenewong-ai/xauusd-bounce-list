@@ -107,7 +107,7 @@ function render() {
       <td>${esc(r.touch_price || '—')}</td>
       <td>${esc(r.bounce_atr || '—')}</td>
       <td>${esc(level)}</td>
-      <td>${esc(r.wo || '—')}</td>`;
+      <td>${esc(r.wo_id || r.wo || '—')}</td>`;
     tbody.appendChild(tr);
   }
   $('meta').textContent = rows.length
@@ -129,6 +129,7 @@ function loadRows(parsed) {
     level_bot: r.level_bot || '',
     touch_price: r.touch_price || '',
     wo: r.wo || '',
+    wo_id: r.wo_id || '',
     bounce_atr: r.bounce_atr || '',
     bounce_ok: r.bounce_ok || ''
   }));
@@ -174,6 +175,12 @@ $('pasteApply').addEventListener('click', (e) => {
   loadRows(parseCsv($('pasteArea').value));
   $('pasteDlg').close();
 });
+
+
+// Auto-load bundled events
+fetch('data.csv').then(r => r.ok ? r.text() : '').then(t => {
+  if (t && t.trim()) loadRows(parseCsv(t));
+}).catch(() => {});
 
 // init default date window
 (() => {
