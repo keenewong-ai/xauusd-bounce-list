@@ -105,7 +105,7 @@ function render() {
     tr.innerHTML = `
       <td>${esc(r.symbol || '—')}</td>
       <td><code>${esc(r.id || '—')}</code></td>
-      <td>${esc(r.date)}${dual.has(r.date) ? ' <span class="tag dual">雙觸發</span>' : ''}</td>
+      <td>${esc(r.date)}${dual.has(`${String(r.symbol || '').toUpperCase()}|${r.date}`) ? ' <span class="tag dual">雙觸發</span>' : ''}</td>
       <td><span class="tag ${esc(String(r.source||'').toLowerCase())}">${esc(sourceLabel(r.source))}</span></td>
       <td><span class="tag ${directionClass(r.side)}">${esc(sideLabel(r.side))}</span></td>
       <td>${esc(r.touch_price || '—')}</td>
@@ -124,12 +124,12 @@ function dualDates(list) {
   const map = {};
   for (const r of list) {
     if (!isBounce(r.bounce_ok)) continue;
-    const d = r.date;
+    const key = `${String(r.symbol || '').toUpperCase()}|${r.date}`;
     const src = String(r.source || '').toLowerCase();
-    if (!map[d]) map[d] = new Set();
-    map[d].add(src);
+    if (!map[key]) map[key] = new Set();
+    map[key].add(src);
   }
-  return new Set(Object.keys(map).filter(d => map[d].has('fvg') && map[d].has('swing')));
+  return new Set(Object.keys(map).filter(k => map[k].has('fvg') && map[k].has('swing')));
 }
 
 function esc(s) {
