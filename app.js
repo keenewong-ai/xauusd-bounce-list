@@ -86,6 +86,7 @@ function filtered() {
 
 function render() {
   const list = filtered();
+  const dual = dualDates(rows);
   tbody.innerHTML = '';
   $('count').textContent = `${list.length} 日有反彈`;
   $('export').disabled = list.length === 0;
@@ -101,7 +102,7 @@ function render() {
     const level = r.level_top || r.level_bot || '—';
     tr.innerHTML = `
       <td><code>${esc(r.id || '—')}</code></td>
-      <td>${esc(r.date)}</td>
+      <td>${esc(r.date)}${dual.has(r.date) ? ' <span class="tag dual">雙觸發</span>' : ''}</td>
       <td><span class="tag ${esc(String(r.source||'').toLowerCase())}">${esc(sourceLabel(r.source))}</span></td>
       <td><span class="tag ${directionClass(r.side)}">${esc(sideLabel(r.side))}</span></td>
       <td>${esc(r.touch_price || '—')}</td>
@@ -113,6 +114,19 @@ function render() {
   $('meta').textContent = rows.length
     ? `已載入 ${rows.length} 行事件 · 顯示 bounce_ok 為真者`
     : '未載入資料';
+}
+
+
+function dualDates(list) {
+  const map = {};
+  for (const r of list) {
+    if (!isBounce(r.bounce_ok)) continue;
+    const d = r.date;
+    const src = String(r.source || '').toLowerCase();
+    if (!map[d]) map[d] = new Set();
+    map[d].add(src);
+  }
+  return new Set(Object.keys(map).filter(d => map[d].has('fvg') && map[d].has('swing')));
 }
 
 function esc(s) {

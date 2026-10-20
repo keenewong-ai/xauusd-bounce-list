@@ -87,3 +87,5 @@ dialog {
 @media (max-width: 640px) {
   .count { margin-left: 0; width: 100%; }
 }
+
+.tag.dual { color: #ffb86b; border-color: #6a4a1a; background: rgba(255,184,107,0.12); font-weight: 600; }
