@@ -1,5 +1,5 @@
 
-const COLS = ['id','date','source','side','level_top','level_bot','touch_price','wo','fwd_1_high','fwd_1_low','fwd_3_high','fwd_3_low','fwd_5_high','fwd_5_low','bounce_atr','bounce_ok'];
+const COLS = ['symbol','id','date','source','side','level_top','level_bot','touch_price','wo','fwd_1_high','fwd_1_low','fwd_3_high','fwd_3_low','fwd_5_high','fwd_5_low','bounce_atr','bounce_ok'];
 let rows = [];
 
 const $ = (id) => document.getElementById(id);
@@ -70,12 +70,14 @@ function withinDefaultYear(dateStr) {
 }
 
 function filtered() {
+  const sym = $('filterSymbol').value;
   const src = $('filterSource').value;
   const side = $('filterSide').value;
   const from = $('from').value;
   const to = $('to').value;
   return rows.filter(r => {
     if (!isBounce(r.bounce_ok)) return false;
+    if (sym && String(r.symbol || '').toUpperCase() !== sym.toUpperCase()) return false;
     if (src && String(r.source || '').toLowerCase() !== src) return false;
     if (side && String(r.side || '').toLowerCase() !== side) return false;
     if (from && r.date < from) return false;
@@ -101,6 +103,7 @@ function render() {
     const tr = document.createElement('tr');
     const level = r.level_top || r.level_bot || '—';
     tr.innerHTML = `
+      <td>${esc(r.symbol || '—')}</td>
       <td><code>${esc(r.id || '—')}</code></td>
       <td>${esc(r.date)}${dual.has(r.date) ? ' <span class="tag dual">雙觸發</span>' : ''}</td>
       <td><span class="tag ${esc(String(r.source||'').toLowerCase())}">${esc(sourceLabel(r.source))}</span></td>
@@ -135,6 +138,7 @@ function esc(s) {
 
 function loadRows(parsed) {
   rows = parsed.map(r => ({
+    symbol: r.symbol || 'XAUUSD',
     id: r.id || '',
     date: r.date || '',
     source: r.source || '',
@@ -164,7 +168,7 @@ $('file').addEventListener('change', async (e) => {
   loadRows(parseCsv(await f.text()));
 });
 
-['filterSource','filterSide','from','to'].forEach(id => $(id).addEventListener('input', render));
+['filterSymbol','filterSource','filterSide','from','to'].forEach(id => $(id).addEventListener('input', render));
 
 $('export').addEventListener('click', () => {
   const list = filtered();

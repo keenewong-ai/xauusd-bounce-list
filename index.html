@@ -3,15 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>XAUUSD 反彈日子</title>
+  <title>反彈日子</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <div class="wrap">
     <header>
       <div>
-        <h1>XAUUSD 反彈日子</h1>
-        <p class="sub">觸及低效率／Swing 後有有效反彈嘅交易日</p>
+        <h1>反彈日子</h1>
+        <p class="sub">XAUUSD／JPN225／EURUSD／BTCUSD／HK50</p>
       </div>
       <div class="actions">
         <label class="btn primary">
@@ -28,6 +28,16 @@
     </section>
 
     <section class="filters">
+      <label>品種
+        <select id="filterSymbol">
+          <option value="">全部</option>
+          <option value="XAUUSD">XAUUSD</option>
+          <option value="JPN225">JPN225</option>
+          <option value="EURUSD">EURUSD</option>
+          <option value="BTCUSD">BTCUSD</option>
+          <option value="HK50">HK50</option>
+        </select>
+      </label>
       <label>來源
         <select id="filterSource">
           <option value="">全部</option>
@@ -57,6 +67,7 @@
       <table>
         <thead>
           <tr>
+            <th>品種</th>
             <th>ID</th>
             <th>日期</th>
             <th>來源</th>
