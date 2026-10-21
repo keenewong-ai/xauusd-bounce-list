@@ -11,7 +11,7 @@
     <header>
       <div>
         <h1>反彈日子</h1>
-        <p class="sub">XAUUSD／JPN225／EURUSD／BTCUSD／HK50</p>
+        <p class="sub">XAUUSD／JPN225／EURUSD／BTCUSD／HK50 · Yahoo（非 Pepperstone）</p>
       </div>
       <div class="actions">
         <label class="btn primary">
@@ -22,10 +22,20 @@
       </div>
     </header>
 
-    <section class="legend">
-      <div><strong>規則</strong>：第一次觸及仍生效關卡 · 前瞻 1／3／5 根日線 · 反彈 ≥ 0.5×ATR(14)</div>
-      <div><strong>預設區間</strong>：最近 3 個月（上傳／內建 CSV 為準）</div>
-      <div><strong>星期</strong>：按 CSV 日線曆日直接計算（香港顯示「星期X」、紐約顯示 Mon–Sun；同一曆日兩邊一致）</div>
+    <nav class="tabs" role="tablist">
+      <button type="button" class="tab active" data-view="hist" role="tab" aria-selected="true">A · 歷史反彈（取消 WO）</button>
+      <button type="button" class="tab" data-view="levels" role="tab" aria-selected="false">B · 即時有效水位</button>
+    </nav>
+
+    <section class="legend" id="legendHist">
+      <div><strong>A 規則</strong>：第一次觸及仍生效關卡 · 前瞻 1／3／5 根日線 · 反彈 ≥ 0.5×ATR(14) · <strong>唔再用 WO 過濾</strong></div>
+      <div><strong>預設區間</strong>：最近 3 個月（內建 CSV 為準）</div>
+      <div><strong>星期</strong>：按 CSV 日線曆日直接計算（香港「星期X」、紐約 Mon–Sun；同一曆日兩邊一致）</div>
+    </section>
+    <section class="legend hidden" id="legendLevels">
+      <div><strong>B 規則</strong>：仍未破嘅 gap／SH／SL，相對 <strong>Yahoo 最新收市</strong>仍喺正確一邊（賣方／SH 高過現價；買方／SL 低過現價）</div>
+      <div><strong>用途</strong>：而家仲可以盯嘅關卡（唔係歷史觸及日 list）</div>
+      <div><strong>asof</strong>：見表內 asof 欄（Yahoo 收市日）</div>
     </section>
 
     <section class="filters">
@@ -55,35 +65,21 @@
           <option value="sl">Swing Low</option>
         </select>
       </label>
-      <label>由
+      <label id="fromWrap">由
         <input id="from" type="date" />
       </label>
-      <label>至
+      <label id="toWrap">至
         <input id="to" type="date" />
       </label>
-      <div class="count" id="count">0 日有反彈</div>
+      <div class="count" id="count">0 筆</div>
     </section>
 
     <section class="table-wrap">
       <table>
-        <thead>
-          <tr>
-            <th>品種</th>
-            <th>ID</th>
-            <th>日期</th>
-            <th>星期（香港）</th>
-            <th>星期（紐約）</th>
-            <th>來源</th>
-            <th>方向</th>
-            <th>觸及價</th>
-            <th>反彈(ATR)</th>
-            <th>關卡</th>
-            <th>WO</th>
-          </tr>
-        </thead>
+        <thead id="thead"></thead>
         <tbody id="tbody"></tbody>
       </table>
-      <div id="empty" class="empty">等緊低效率同 swing 事件 CSV。上傳後會喺呢度顯示有反彈嘅日子。</div>
+      <div id="empty" class="empty">載入中…</div>
     </section>
 
     <footer>
@@ -94,8 +90,8 @@
 
   <dialog id="pasteDlg">
     <form method="dialog" class="paste-form">
-      <h2>貼上 CSV</h2>
-      <textarea id="pasteArea" rows="12" placeholder="date,source,side,level_top,level_bot,touch_price,wo,...,bounce_atr,bounce_ok"></textarea>
+      <h2>貼上 CSV（套用到目前分頁）</h2>
+      <textarea id="pasteArea" rows="12" placeholder="貼上 A 或 B 格式 CSV…"></textarea>
       <div class="dlg-actions">
         <button value="cancel" class="btn">取消</button>
         <button id="pasteApply" value="default" class="btn primary">套用</button>

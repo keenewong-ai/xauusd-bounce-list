@@ -89,3 +89,21 @@ dialog {
 }
 
 .tag.dual { color: #ffb86b; border-color: #6a4a1a; background: rgba(255,184,107,0.12); font-weight: 600; }
+
+.tabs { display: flex; gap: 8px; margin-top: 18px; flex-wrap: wrap; }
+.tab {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--muted);
+  border-radius: 999px;
+  padding: 8px 14px;
+  cursor: pointer;
+  font: inherit;
+}
+.tab.active {
+  color: #04120f;
+  background: linear-gradient(135deg, #1f8f84, #2bb3a3);
+  border-color: transparent;
+  font-weight: 600;
+}
+.tag.dual { color: var(--warn); margin-left: 6px; }
