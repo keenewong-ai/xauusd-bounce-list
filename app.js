@@ -125,12 +125,14 @@ function render() {
 
 function weekdaysFor(dateStr) {
   if (!dateStr) return { hk: '—', ny: '—' };
-  // Interpret trigger date as 00:00 UTC, then show weekday in each zone
-  const utc = new Date(`${dateStr}T00:00:00.000Z`);
-  if (Number.isNaN(utc.getTime())) return { hk: '—', ny: '—' };
-  const hk = new Intl.DateTimeFormat('zh-HK', { weekday: 'long', timeZone: 'Asia/Hong_Kong' }).format(utc);
-  const ny = new Intl.DateTimeFormat('zh-HK', { weekday: 'long', timeZone: 'America/New_York' }).format(utc);
-  return { hk, ny };
+  // Civil calendar date from CSV (no intraday) — same weekday for both labels
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dateStr);
+  if (!m) return { hk: '—', ny: '—' };
+  const y = +m[1], mo = +m[2], d = +m[3];
+  const dow = new Date(Date.UTC(y, mo - 1, d)).getUTCDay(); // 0=Sun
+  const hkNames = ['星期日','星期一','星期二','星期三','星期四','星期五','星期六'];
+  const nyNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  return { hk: hkNames[dow], ny: nyNames[dow] };
 }
 
 function dualDates(list) {
