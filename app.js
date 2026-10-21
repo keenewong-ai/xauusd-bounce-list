@@ -1,5 +1,5 @@
 const COLS_HIST = ['symbol','id','date','weekday_hk','weekday_ny','source','side','level_top','level_bot','touch_price','wo','fwd_1_high','fwd_1_low','fwd_3_high','fwd_3_low','fwd_5_high','fwd_5_low','bounce_atr','bounce_ok'];
-const COLS_LEVELS = ['symbol','id','asof_date','source','side','level_top','level_bot','spot_close','wo','wo_id'];
+const COLS_LEVELS = ['symbol','id','asof_date','source','side','level_top','level_bot','spot_close','confirm_date','dist_to_spot','wo','wo_id'];
 
 let view = 'hist'; // hist | levels
 let histRows = [];
@@ -119,18 +119,23 @@ function normalizeHist(parsed) {
 }
 
 function normalizeLevels(parsed) {
-  return parsed.map(r => ({
-    symbol: r.symbol || '',
-    id: r.id || '',
-    asof_date: r.asof_date || r.asof || '',
-    source: r.source || '',
-    side: r.side || '',
-    level_top: r.level_top || '',
-    level_bot: r.level_bot || '',
-    spot_close: r.spot_close || r.spot || '',
-    wo: r.wo || '',
-    wo_id: r.wo_id || ''
-  }));
+  return parsed.map(r => {
+    const lvl = r.level || '';
+    return {
+      symbol: r.symbol || '',
+      id: r.id || '',
+      asof_date: r.asof_date || r.asof || r.spot_date || '',
+      source: r.source || '',
+      side: r.side || '',
+      level_top: r.level_top || lvl,
+      level_bot: r.level_bot || lvl,
+      spot_close: r.spot_close || r.spot || '',
+      wo: r.wo || '',
+      wo_id: r.wo_id || '',
+      confirm_date: r.confirm_date || '',
+      dist_to_spot: r.dist_to_spot || ''
+    };
+  });
 }
 
 function activeRows() {
@@ -171,7 +176,7 @@ function setThead() {
   } else {
     thead.innerHTML = `<tr>
       <th>品種</th><th>ID</th><th>asof</th><th>來源</th><th>方向</th>
-      <th>level_top</th><th>level_bot</th><th>現價(收)</th><th>WO（參考）</th>
+      <th>level_top</th><th>level_bot</th><th>現價(收)</th><th>確認日</th><th>距現價</th><th>WO（參考）</th>
     </tr>`;
   }
 }
@@ -227,6 +232,8 @@ function render() {
         <td>${esc(r.level_top || '—')}</td>
         <td>${esc(r.level_bot || '—')}</td>
         <td>${esc(r.spot_close || '—')}</td>
+        <td>${esc(r.confirm_date || '—')}</td>
+        <td>${esc(r.dist_to_spot || '—')}</td>
         <td>${esc(r.wo_id || r.wo || '—')}</td>`;
     }
     tbody.appendChild(tr);
