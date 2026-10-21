@@ -1,5 +1,5 @@
 
-const COLS = ['symbol','id','date','source','side','level_top','level_bot','touch_price','wo','fwd_1_high','fwd_1_low','fwd_3_high','fwd_3_low','fwd_5_high','fwd_5_low','bounce_atr','bounce_ok'];
+const COLS = ['symbol','id','date','weekday_hk','weekday_ny','source','side','level_top','level_bot','touch_price','wo','fwd_1_high','fwd_1_low','fwd_3_high','fwd_3_low','fwd_5_high','fwd_5_low','bounce_atr','bounce_ok'];
 let rows = [];
 
 const $ = (id) => document.getElementById(id);
@@ -106,6 +106,8 @@ function render() {
       <td>${esc(r.symbol || '—')}</td>
       <td><code>${esc(r.id || '—')}</code></td>
       <td>${esc(r.date)}${dual.has(`${String(r.symbol || '').toUpperCase()}|${r.date}`) ? ' <span class="tag dual">雙觸發</span>' : ''}</td>
+      <td>${esc(weekdaysFor(r.date).hk)}</td>
+      <td>${esc(weekdaysFor(r.date).ny)}</td>
       <td><span class="tag ${esc(String(r.source||'').toLowerCase())}">${esc(sourceLabel(r.source))}</span></td>
       <td><span class="tag ${directionClass(r.side)}">${esc(sideLabel(r.side))}</span></td>
       <td>${esc(r.touch_price || '—')}</td>
@@ -119,6 +121,17 @@ function render() {
     : '未載入資料';
 }
 
+
+
+function weekdaysFor(dateStr) {
+  if (!dateStr) return { hk: '—', ny: '—' };
+  // Interpret trigger date as 00:00 UTC, then show weekday in each zone
+  const utc = new Date(`${dateStr}T00:00:00.000Z`);
+  if (Number.isNaN(utc.getTime())) return { hk: '—', ny: '—' };
+  const hk = new Intl.DateTimeFormat('zh-HK', { weekday: 'long', timeZone: 'Asia/Hong_Kong' }).format(utc);
+  const ny = new Intl.DateTimeFormat('zh-HK', { weekday: 'long', timeZone: 'America/New_York' }).format(utc);
+  return { hk, ny };
+}
 
 function dualDates(list) {
   const map = {};
@@ -171,7 +184,10 @@ $('file').addEventListener('change', async (e) => {
 ['filterSymbol','filterSource','filterSide','from','to'].forEach(id => $(id).addEventListener('input', render));
 
 $('export').addEventListener('click', () => {
-  const list = filtered();
+  const list = filtered().map(r => {
+    const w = weekdaysFor(r.date);
+    return { ...r, weekday_hk: w.hk, weekday_ny: w.ny };
+  });
   const header = COLS.join(',');
   const body = list.map(r => COLS.map(c => csvEscape(r[c] ?? '')).join(',')).join('\n');
   const blob = new Blob([header + '\n' + body], { type: 'text/csv;charset=utf-8' });
